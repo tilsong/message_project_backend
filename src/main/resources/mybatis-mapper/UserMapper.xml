@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.project.messanger.main.dao.UserMapper">
+
+    <!--  Test로 진행, 추후 삭제 예정!  -->
+    <select id="getAllUsers"  resultType="com.project.messanger.main.model.User">
+        select * from users
+    </select>
+
+<!--  main page  -->
+    <!--  login 후 본인계정 정보 Req  -->
+    <select id="getUser" resultType="com.project.messanger.main.model.User" parameterType="String">
+        select * from users where id = #{id}
+    </select>
+
+    <select id="getgroups" resultType="com.project.messanger.main.model.Group" parameterType="int`">
+        select * from groups where uidx = #{idx}
+    </select>
+
+<!--  main page  -->
+</mapper>
