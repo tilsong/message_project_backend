@@ -7,7 +7,7 @@
 
     <!--  Test로 진행, 추후 삭제 예정!  -->
     <select id="getAllUsers"  resultType="com.project.messanger.main.model.User">
-        select * from users
+        select * from useres
     </select>
 
 <!--  main page  -->
@@ -16,8 +16,12 @@
         select * from users where id = #{id}
     </select>
 
-    <select id="getgroups" resultType="com.project.messanger.main.model.Group" parameterType="int`">
+    <select id="getgroups" resultType="com.project.messanger.main.model.Group" parameterType="int">
         select * from groups where uidx = #{idx}
+    </select>
+
+    <select id="getCountGroup" resultType="int" parameterType="int">
+        select COUNT(*) from groups where user_id = #{idx}
     </select>
 
 <!--  main page  -->

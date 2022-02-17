@@ -5,10 +5,7 @@ import com.project.messanger.main.model.Group;
 import com.project.messanger.main.model.User;
 import com.project.messanger.main.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -19,26 +16,45 @@ public class HomeController {
     @Autowired
     UserService userService;
 
-    @GetMapping("")
-    public List<User> getAllUsers(){
+    @GetMapping("/{idx}")
+    public List<User> getAllUsers(@PathVariable String idx){
+
+        System.out.println("getAllUsers start");
+
+
+        int varidx = Integer.parseInt(idx);
+        System.out.println("===== idx : " + varidx + " =====");
+
         List<User> userList = userService.getAllUsers();
 
+        int countGroup = userService.getCountGroups(varidx);
         return userList;
     }
 
-    @GetMapping("/{id}")
-    public User getUser(@PathVariable String id){
+    @PostMapping("/{idx}")
+    public int mainHompage(@PathVariable String idx){
 
-        return userService.getUser(id);
+        int user_idx = Integer.parseInt(idx);
+        System.out.println("user idx : " + user_idx);
+
+        int numberOfGroups = userService.getCountGroups(user_idx);
+
+        return numberOfGroups;
     }
 
-    @GetMapping("/{idx}")
-    public List<Group> getGroup(@PathVariable String idx){
-        System.out.println("idx : " + idx);
-        List<Group> userGroupList = userService.getGroupes(idx);
-
-        return userGroupList;
-    }
+//    @GetMapping("/{id}")
+//    public User getUser(@PathVariable String id){
+//
+//        return userService.getUser(id);
+//    }
+//
+//    @GetMapping("/{idx}")
+//    public List<Group> getGroup(@PathVariable String idx){
+//        System.out.println("idx : " + idx);
+//        List<Group> userGroupList = userService.getGroupes(idx);
+//
+//        return userGroupList;
+//    }
 
 
 

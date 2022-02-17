@@ -11,7 +11,9 @@ public interface UserMapper {
 
     List<User> getAllUsers();
 
-    public User getUser(String id);
+    int getCountGroups(int idx);
 
-    List<Group> getGroupes(String idx);
+//    public User getUser(String id);
+//
+//    List<Group> getGroupes(String idx);
 }
