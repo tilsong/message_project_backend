@@ -3,26 +3,180 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 
-<mapper namespace="com.project.messanger.main.dao.UserMapper">
+<mapper namespace="com.project.messanger.user.dao.UserMapper">
 
-    <!--  Test로 진행, 추후 삭제 예정!  -->
-    <select id="getAllUsers"  resultType="com.project.messanger.main.model.User">
-        select * from useres
+
+    <select id="getUser" resultType="com.project.messanger.user.model.User" parameterType="String">
+        select userId, id, pwd, role from user where id = #{id}
     </select>
 
-<!--  main page  -->
-    <!--  login 후 본인계정 정보 Req  -->
-    <select id="getUser" resultType="com.project.messanger.main.model.User" parameterType="String">
-        select * from users where id = #{id}
+    <insert id="newUser" parameterType="com.project.messanger.user.model.User">
+        INSERT INTO user (id,pwd,name,email, phone, role) VALUE( #{id}, #{pwd}, #{name}, #{phone},#{email}, #{role})
+    </insert>
+
+    <select id="checkUser" parameterType="String" resultType="com.project.messanger.user.model.User">
+        SELECT *
+        FROM user
+        WHERE id = #{id}
     </select>
 
-    <select id="getgroups" resultType="com.project.messanger.main.model.Group" parameterType="int">
-        select * from groups where uidx = #{idx}
+    <select id="getAllGroup" parameterType="String" resultType="_int">
+        SELECT COUNT(*)
+        FROM groups
+        WHERE userId =
+        ( SELECT userId
+            FROM user
+            WHERE id = #{id}
+        )
     </select>
 
-    <select id="getCountGroup" resultType="int" parameterType="int">
-        select COUNT(*) from groups where user_id = #{idx}
+    <resultMap id="getAllGroupMemberData" type="hashMap"></resultMap>
+    <select id="getAllGroupMember" parameterType="String" resultMap="getAllGroupMemberData">
+        SELECT groups.groupId, user.name
+        FROM user
+        NATURAL JOIN groups
+        WHERE
+        user.name NOT IN (select name from user where id = #{id})
+        AND
+        groupId =
+        ANY(select groupId from groups where userId =
+        (select userId from user where id = #{id})
+            )
     </select>
 
-<!--  main page  -->
+    <resultMap id="getAllGroupNameData" type="hashMap"></resultMap>
+    <select id="getAllGroupName" parameterType="String" resultMap="getAllGroupNameData">
+        SELECT groupId, groupName
+        FROM groupInfo
+        WHERE groupId  IN
+              (SELECT groupId
+               FROM groups
+               WHERE userId =
+                     (SELECT userId
+                      FROM user
+                      where id = #{id})
+              )
+    </select>
+
+    <resultMap id="getGroupInfoData" type="hashMap"></resultMap>
+    <select id="getGroupInfo" parameterType="Integer" resultMap="getGroupInfoData">
+        SELECT groupId, groupName
+        FROM groupInfo
+        WHERE groupId = #{gidx}
+    </select>
+
+    <select id="getUserID" parameterType="String" resultType="Integer">
+        SELECT userId
+        FROM user
+        WHERE id = #{id}
+    </select>
+
+    <insert id="newPromiseInfo" parameterType="com.project.messanger.user.model.PromiseInfo">
+        INSERT INTO promiseInfo (promiseName, promiseInfo) VALUE(#{promise_name}, #{promise_info})
+    </insert>
+
+    <select id="selectPromiseId" parameterType="String" resultType="Integer">
+        SELECT promiseId
+        FROM promiseInfo
+        WHERE promiseName = #{prpmise_name}
+    </select>
+
+    <select id="checkPromiseId" parameterType="String" resultType="String">
+        SELECT promiseName
+        FROM promiseInfo
+        WHERE promiseName = #{prpmise_name}
+    </select>
+
+    <insert id="newPromise" parameterType="HashMap">
+        INSERT INTO promises (groupId, promiseId) VALUE (#{group_id}, #{promise_id})
+    </insert>
+
+    <select id="getAllPromise" parameterType="String" resultType="com.project.messanger.user.model.PromiseInfo">
+        SELECT promiseId, promiseName, promiseInfo
+        FROM promiseInfo
+        WHERE promiseId =
+                  ANY (SELECT promiseId
+                        FROM promises
+                        WHERE groupId = #{group_id}
+                      )
+    </select>
+    <select id="testPormiseInfo" resultType="com.project.messanger.user.model.PromiseInfo">
+        SELECT * FROM promiseInfo
+    </select>
+
+
+    <resultMap id="getUpdateGroupInfoMap" type="hashMap"></resultMap>
+    <select id="getUpdateGroupInfo" parameterType="Integer" resultMap="getUpdateGroupInfoMap">
+        SELECT *
+        FROM promiseInfo
+        NATURAL JOIN promises
+        WHERE promiseId =
+              ANY (
+                    SELECT promiseId
+                    FROM promises
+                    WHERE groupId = #{group_id}
+                    AND promiseId = #{promise_id}
+                  )
+    </select>
+
+    <update id="updatePromise" parameterType="com.project.messanger.user.model.PromiseInfo">
+        UPDATE promiseInfo
+        SET promiseName = #{promise_name}, promiseInfo = #{promise_info}
+        WHERE promiseId = #{promise_id}
+    </update>
+
+    <insert id="newGroupInfo" parameterType="com.project.messanger.user.model.Group">
+        INSERT INTO groupInfo (groupName, groupInfo) VALUES( #{groupName}, #{groupInfo})
+    </insert>
+    <select id="getGroupId" parameterType="String" resultType="Integer">
+        SELECT groupId FROM groupInfo WHERE groupName = #{group_name}
+    </select>
+    <insert id="newGroup" parameterType="com.project.messanger.user.model.Group">
+        INSERT INTO groups VALUES(#{userId} , #{groupId})
+    </insert>
+
+    <resultMap id="getAllKnowMemberMap" type="hashmap"></resultMap>
+    <select id="getAllKnowMember" parameterType="String" resultMap="getAllKnowMemberMap">
+        SELECT groups.groupId, user.name
+        FROM user
+        NATURAL JOIN groups
+        WHERE
+        user.name NOT IN
+        (
+            select name from user where userId = #{userId}
+        )
+        AND
+            groupId = ANY(select groupId from groups where userId =
+                        (select userId from user where userId = #{userId})
+            )
+    </select>
+
+    <select id="getGroupMember" parameterType="String" resultType="Integer">
+        SELECT groups.groupId
+        FROM user
+                 NATURAL JOIN groups
+        WHERE
+            user.name NOT IN (select name from user where id = #{id})
+          AND
+                groupId =
+                ANY(select groupId from groups where userId =
+                                                     (select userId from user where id = #{id})
+                )
+    </select>
+
+
+<!--    <select id="getAllPromise" resultType="String" parameterType="String">-->
+<!--        SELECT promise_name-->
+<!--        FROM promiseInfo-->
+<!--        WHERE promise_id = ANY(-->
+<!--                                SELECT group_id-->
+<!--                                FROM groups-->
+<!--                                NATURAL JOIN user-->
+<!--                                WHERE user_id = (-->
+<!--                                                SELECT user_id-->
+<!--                                                FROM user-->
+<!--                                                WHERE id = #{id})-->
+<!--        )-->
+<!--    </select>-->
+
 </mapper>

@@ -1,4 +1,4 @@
-package com.project.messanger.main.model;
+package com.project.messanger.user.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,7 +10,8 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Group {
-    private int gidx;
-    private int uidx;
-
+    private int groupId;
+    private String groupName;
+    private String groupInfo;
+    private int userId;
 }
