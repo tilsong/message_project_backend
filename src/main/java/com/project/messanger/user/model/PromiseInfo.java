@@ -12,9 +12,9 @@ import java.sql.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PromiseInfo {
-    private int promise_id;
-    private String promise_name;
-    private  String promise_info;
-    private Date promise_date;
+    private int promiseId;
+    private String promiseName;
+    private  String promiseInfo;
+    private Date promiseDate;
     private String location;
 }

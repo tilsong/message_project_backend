@@ -30,7 +30,7 @@
         )
     </select>
 
-    <resultMap id="getAllGroupMemberData" type="hashMap"></resultMap>
+    <resultMap id="getAllGroupMemberData" type="hashmap"></resultMap>
     <select id="getAllGroupMember" parameterType="String" resultMap="getAllGroupMemberData">
         SELECT groups.groupId, user.name
         FROM user
@@ -44,7 +44,7 @@
             )
     </select>
 
-    <resultMap id="getAllGroupNameData" type="hashMap"></resultMap>
+    <resultMap id="getAllGroupNameData" type="hashmap"></resultMap>
     <select id="getAllGroupName" parameterType="String" resultMap="getAllGroupNameData">
         SELECT groupId, groupName
         FROM groupInfo
@@ -58,9 +58,9 @@
               )
     </select>
 
-    <resultMap id="getGroupInfoData" type="hashMap"></resultMap>
-    <select id="getGroupInfo" parameterType="Integer" resultMap="getGroupInfoData">
-        SELECT groupId, groupName
+    <resultMap id="getGroupInfoMap" type="hashmap"></resultMap>
+    <select id="getGroupInfo" parameterType="Integer" resultMap="getGroupInfoMap">
+        SELECT groupId, groupName, groupInfo
         FROM groupInfo
         WHERE groupId = #{gidx}
     </select>
@@ -72,7 +72,7 @@
     </select>
 
     <insert id="newPromiseInfo" parameterType="com.project.messanger.user.model.PromiseInfo">
-        INSERT INTO promiseInfo (promiseName, promiseInfo) VALUE(#{promise_name}, #{promise_info})
+        INSERT INTO promiseInfo (promiseName, promiseInfo) VALUE(#{promiseName}, #{promiseInfo})
     </insert>
 
     <select id="selectPromiseId" parameterType="String" resultType="Integer">
@@ -87,11 +87,11 @@
         WHERE promiseName = #{prpmise_name}
     </select>
 
-    <insert id="newPromise" parameterType="HashMap">
-        INSERT INTO promises (groupId, promiseId) VALUE (#{group_id}, #{promise_id})
+    <insert id="newPromise" parameterType="int">
+        INSERT INTO promises (groupId, promiseId) VALUE (#{groupId}, #{promiseId})
     </insert>
 
-    <select id="getAllPromise" parameterType="String" resultType="com.project.messanger.user.model.PromiseInfo">
+    <select id="getAllPromise" parameterType="int" resultType="com.project.messanger.user.model.PromiseInfo">
         SELECT promiseId, promiseName, promiseInfo
         FROM promiseInfo
         WHERE promiseId =
@@ -105,7 +105,7 @@
     </select>
 
 
-    <resultMap id="getUpdateGroupInfoMap" type="hashMap"></resultMap>
+    <resultMap id="getUpdateGroupInfoMap" type="hashmap"></resultMap>
     <select id="getUpdateGroupInfo" parameterType="Integer" resultMap="getUpdateGroupInfoMap">
         SELECT *
         FROM promiseInfo
@@ -121,8 +121,8 @@
 
     <update id="updatePromise" parameterType="com.project.messanger.user.model.PromiseInfo">
         UPDATE promiseInfo
-        SET promiseName = #{promise_name}, promiseInfo = #{promise_info}
-        WHERE promiseId = #{promise_id}
+        SET promiseName = #{promiseName}, promiseInfo = #{promiseInfo}
+        WHERE promiseId = #{promiseId}
     </update>
 
     <insert id="newGroupInfo" parameterType="com.project.messanger.user.model.Group">
@@ -135,9 +135,12 @@
         INSERT INTO groups VALUES(#{userId} , #{groupId})
     </insert>
 
-    <resultMap id="getAllKnowMemberMap" type="hashmap"></resultMap>
+    <resultMap id="getAllKnowMemberMap" type="com.project.messanger.user.model.Group">
+        <id property="groupId" column="groupId" />
+        <id property="userId" column="userid" />
+    </resultMap>
     <select id="getAllKnowMember" parameterType="String" resultMap="getAllKnowMemberMap">
-        SELECT groups.groupId, user.name
+        SELECT groups.groupId,  user.userId
         FROM user
         NATURAL JOIN groups
         WHERE
@@ -151,32 +154,28 @@
             )
     </select>
 
-    <select id="getGroupMember" parameterType="String" resultType="Integer">
-        SELECT groups.groupId
+    <select id="checkGreoupMember" parameterType="String" resultType="com.project.messanger.user.model.User">
+        SELECT user.userId, user.id, user.name
         FROM user
-                 NATURAL JOIN groups
-        WHERE
-            user.name NOT IN (select name from user where id = #{id})
-          AND
-                groupId =
-                ANY(select groupId from groups where userId =
-                                                     (select userId from user where id = #{id})
-                )
+        NATURAL JOIN groups
+        WHERE groups.userId = ANY
+        (
+            SELECT userId FROM groups WHERE userId != #{userId}
+        )
     </select>
 
-
-<!--    <select id="getAllPromise" resultType="String" parameterType="String">-->
-<!--        SELECT promise_name-->
-<!--        FROM promiseInfo-->
-<!--        WHERE promise_id = ANY(-->
-<!--                                SELECT group_id-->
-<!--                                FROM groups-->
-<!--                                NATURAL JOIN user-->
-<!--                                WHERE user_id = (-->
-<!--                                                SELECT user_id-->
-<!--                                                FROM user-->
-<!--                                                WHERE id = #{id})-->
-<!--        )-->
-<!--    </select>-->
+    <resultMap id="getGroupMemberMap" type="com.project.messanger.user.model.User">
+        <id property="userId" column="userId" />
+        <id property="id" column="id" />
+    </resultMap>
+    <select id="getGroupMember" parameterType="String" resultMap="getGroupMemberMap">
+        SELECT user.userId,  user.id
+        FROM user
+        NATURAL JOIN groups
+        WHERE
+        user.name NOT IN (select name from user where id = #{id})
+        AND
+        groupId = #{gidx}
+    </select>
 
 </mapper>

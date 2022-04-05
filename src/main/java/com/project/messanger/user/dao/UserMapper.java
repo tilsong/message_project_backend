@@ -34,10 +34,10 @@ public interface UserMapper {
 
     String checkPromiseId(String promise_name);
 
-    void newPromise(HashMap promise);
+    int newPromise(int groupId, int promiseId);
 
     int getUserID(String id);
-    public ArrayList<PromiseInfo> getAllPromise(String group_id);
+    public ArrayList<PromiseInfo> getAllPromise(int group_id);
 
     public  ArrayList<PromiseInfo> testPormiseInfo();
 
@@ -53,7 +53,8 @@ public interface UserMapper {
 
     List getAllKnowMember(String userId);
     
-    List getGroupMember(String id);
+    List getGroupMember(String gidx, String id);
 
+    ArrayList<User> checkGreoupMember(String userId);
 
 }

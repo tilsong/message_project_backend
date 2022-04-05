@@ -1,9 +1,11 @@
 package com.project.messanger.user.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.messanger.user.dao.UserMapper;
 import com.project.messanger.user.model.Group;
 import com.project.messanger.user.model.PromiseInfo;
 import com.project.messanger.user.model.User;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -111,7 +113,7 @@ public class UserService {
     /*
      * New Promise Page
      * 1. getGroupInfo
-     *   새로운 약속을 만들기 위해 약속을 만들기 위한 그룹의 정보를 넘긴다
+     *   새로운 약속을 만들기 위한 그룹의 정보를 넘긴다
      *       들어오는 데이터 : 그룹ID
      * 2. newPromise
      *   새로운 약속을 그룹에 만든다
@@ -121,7 +123,7 @@ public class UserService {
      *       들어오는 데이터 : 그룹ID, 약속ID, {계정ID}
      *
      * */
-    public HashMap getGroupInfo(int gidx, String id) {
+    public HashMap getGroupInfo(int gidx) {
         System.out.println("===== getGroupInfo start =====");
 //        List groupInfo = userMapper.getGroupInfo(gidx);
 //        if(id != null) {
@@ -130,10 +132,11 @@ public class UserService {
 //            * 막힘
 //            * */
 //        }else{
-            HashMap groupInfo = userMapper.getGroupInfo(gidx);
+        System.out.println("gidx >> " + gidx);
 
-            System.out.println("group_id > " + groupInfo.get("groupId"));
-            System.out.println("group_name > " + groupInfo.get("groupName"));
+        HashMap groupInfo = userMapper.getGroupInfo(gidx);
+
+        System.out.println("informatil of group > " + groupInfo.toString());
 
             return groupInfo;
 //        }
@@ -143,32 +146,43 @@ public class UserService {
         System.out.println("===== newPromise start =====");
 
         PromiseInfo newPromise = new PromiseInfo();
-        newPromise.setPromise_date(Date.valueOf((String) data.get("date")));
-        newPromise.setPromise_name((String) data.get("promise_name"));
-        newPromise.setPromise_info((String) data.get("info"));
+        newPromise.setPromiseDate(Date.valueOf((String) data.get("date")));
+        newPromise.setPromiseName((String) data.get("promise_name"));
+        newPromise.setPromiseInfo((String) data.get("info"));
         newPromise.setLocation((String) data.get("location"));
         /*중복체크*/
-        String check_promise_name = userMapper.checkPromiseId(newPromise.getPromise_name());
-        if (newPromise.getPromise_name().equals(check_promise_name)) {
+        String check_promise_name = userMapper.checkPromiseId(newPromise.getPromiseName());
+        if (newPromise.getPromiseName().equals(check_promise_name)) {
             System.out.println("===== 이미 존재하는 약속 =====");
 
             return null;
         } else {
             userMapper.newPromiseInfo(newPromise);
-            Integer promise_id = userMapper.selectPromiseId(newPromise.getPromise_name());
+            Integer promiseId = userMapper.selectPromiseId(newPromise.getPromiseName());
+            System.out.println("======================================================================");
+            int groupId = Integer.parseInt(data.get("group_id").toString());
 
+            System.out.println("groupId >>" +groupId);
+            System.out.println("promiseId >>" + promiseId);
+
+            int checkNewPromise = userMapper.newPromise(groupId,promiseId);
+
+            System.out.println("checkNewPromise >> "  + checkNewPromise);
+            System.out.println("======================================================================");
             HashMap promise = new HashMap();
-            promise.put("group_id", data.get("group_id"));
-            promise.put("promise_id", promise_id);
 
-            userMapper.newPromise(promise);
-
-            return promise;
+            if(checkNewPromise != 1){
+                return promise;
+            }else{
+                promise.put("groupId", groupId);
+                promise.put("promiseId", promiseId);
+                return promise;
+            }
         }
     }
 
     //     리턴값이 null로 나온다. 사이즈도 정확한데 뭐가 문제일까?
-    public ArrayList getAllPromise(String group_id) {
+    public ArrayList getAllPromise(int group_id) {
         System.out.println("====== getAllPromise start ======");
 
         System.out.println("group_id >> " + group_id);
@@ -248,18 +262,75 @@ public class UserService {
     public ArrayList getAllKnowMember(String userId) {
         System.out.println("====== getAllKnowMember start =======");
 
-        ArrayList userList = (ArrayList) userMapper.getAllKnowMember(userId);
+        ArrayList<Group> list = (ArrayList) userMapper.getAllKnowMember(userId);
+        ArrayList<User> userList = userMapper.checkGreoupMember(userId);
 
-
-        for(Object userMap : userList){
-            System.out.println("resultMap groupId >>> " + userMap.toString());
+        for(Group group : list){
+            System.out.println("getAllKnowMember groupId >>> " + group.getGroupId());
         }
         return userList;
     }
 
-    public ArrayList getGroupMember(String id) {
+    public ArrayList getGroupMember(String gidx, String id) {
         System.out.println("===== getGroupMember start =====");
-        return (ArrayList) userMapper.getGroupMember(id);
+        ArrayList<User> resultList = (ArrayList) userMapper.getGroupMember(gidx, id);
+//        for (int i=0; i < resultList.size(); i++){
+//            System.out.println("resultList" + i + ">> " + resultList.get(i).);
+//        }
+
+        for(User user : resultList){
+            System.out.println("user userID >> " + user.getUserId());
+            System.out.println("user id >> " + user.getId());
+        }
+        return resultList;
+    }
+
+    public void updateGroup(HashMap updateGroup) {
+        System.out.println("===== SERVICE updateGroup start ======");
+
+        ArrayList<User> userList = new ArrayList<>();
+        ObjectMapper mapper = new ObjectMapper();
+
+        int i=0;
+        while (i<updateGroup.size() ){
+            System.out.println("updateGroup.get(\"user\"+i);" + updateGroup.get("user"+i));
+            userList.add(mapper.convertValue(updateGroup.get("user"+i), com.project.messanger.user.model.User.class));
+
+            if(userList.get(i) == null){
+                System.out.println("user null!!!");
+                break;
+            }
+            i++;
+        }
+        userList.remove(i);
+
+        String groupId = mapper.convertValue(updateGroup.get("groupId"), String.class);
+        String id = mapper.convertValue(updateGroup.get("id"), String.class);
+
+        ArrayList<User> originMember = (ArrayList) userMapper.getGroupMember(groupId, id);
+        if(userList.size() < originMember.size()){
+            for(int j=0; j < originMember.size(); j++){
+                System.out.println("orgin Member >>> " + originMember.get(j));
+                System.out.println("update Member >>> " + userList.get(j));
+//            for(int k=0; k < userList.size(); k++){
+//                if(userList.get(k) != originMember.get(j)){
+//                    System.out.println("INTER GOGO!!");
+//                }
+//            }
+            }
+        }else if(userList.size() > originMember.size()){
+            for(int j=0; j < userList.size(); j++){
+                System.out.println("orgin Member >>> " + originMember.get(j));
+                System.out.println("update Member >>> " + userList.get(j));
+//            for(int k=0; k < userList.size(); k++){
+//                if(userList.get(k) != originMember.get(j)){
+//                    System.out.println("INTER GOGO!!");
+//                }
+//            }
+            }
+        }else{
+            System.out.println("인원 변경 없음");
+        }
     }
 
 

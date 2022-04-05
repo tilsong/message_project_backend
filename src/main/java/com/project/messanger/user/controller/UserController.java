@@ -1,6 +1,7 @@
 package com.project.messanger.user.controller;
 
 
+import com.project.messanger.user.model.Group;
 import com.project.messanger.user.model.PromiseInfo;
 import com.project.messanger.user.model.User;
 import com.project.messanger.user.service.UserService;
@@ -11,6 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -131,7 +133,7 @@ public class UserController {
         System.out.println(groupId);
         int gidx = Integer.parseInt(groupId);
         String id = null;
-        HashMap groupInfo = userService.getGroupInfo(gidx, id);
+        HashMap groupInfo = userService.getGroupInfo(gidx);
 
         return groupInfo;
         /*
@@ -157,9 +159,9 @@ public class UserController {
 
             // 새로운 약속 생성 성공 후 회원의 전체 그룹들과 약속 정보들을 리턴
             System.out.println("group_id >> " + promise.get("groupId"));
-            System.out.println("promise_id >> " + promise.get("promiseI"));
+            System.out.println("promise_id >> " + promise.get("promiseId"));
 
-            String group_id = (String)promise.get("groupId");
+            int group_id = Integer.parseInt(promise.get("groupId").toString());
 
             return userService.getAllPromise(group_id);
 
@@ -244,23 +246,37 @@ public class UserController {
     }
 
     @PostMapping("user/createGroup/updateGroupForm")
-    public String updateGroupForm(@RequestParam("groupId") String groupId,@RequestParam("id") String id){
+    public HashMap updateGroupForm(@RequestParam("groupId") String groupId,@RequestParam("id") String id){
         System.out.println("===== updateGroupForm start =====");
         System.out.println("groupId > " + groupId);
         System.out.println("id > " + id);
 
         int gidx = Integer.parseInt(groupId);
-        HashMap groupMap = userService.getGroupInfo(gidx, id);
-        ArrayList groupMemberLlist = userService.getGroupMember(id);
+        HashMap groupInfo = userService.getGroupInfo(gidx);
+        ArrayList<User> userList =  userService.getGroupMember(groupId, id);
 
-        ArrayList resultList = new ArrayList<>();
-        for(int i=0; i < groupMemberLlist.size(); i++){
-            if (groupMap.get("groupId").equals(groupMemberLlist.get(i))) {
-                resultList.add(groupMemberLlist.get(i));
-            }
+        for(int i=0; i < userList.size(); i++){
+            groupInfo.put("user" + i , userList.get(i));
         }
 
 
-        return "updateGroupForm";
+        return groupInfo;
+    }
+
+    @PostMapping("user/createGroup/updateGroup")
+    public String updateGroup(@RequestBody HashMap updateGroup){
+        System.out.println("====== CONTROLLER updateGroup start ======");
+        for(int i=0; i< updateGroup.size(); i++){
+            System.out.println("updateGroup groupId >> " + updateGroup.get("groupId"));
+            System.out.println("updateGroup groupName >> " + updateGroup.get("groupName"));
+            System.out.println("updateGroup groupInfo >> " + updateGroup.get("groupInfo"));
+            System.out.println("updateGroup id >> " + updateGroup.get("id"));
+            System.out.println("updateGroup groupMember >> " + updateGroup.get("user"+i));
+        }
+
+        userService.updateGroup(updateGroup);
+
+
+        return "updateGroup";
     }
 }
