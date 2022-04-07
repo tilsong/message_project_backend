@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Array;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -292,7 +293,7 @@ public class UserService {
         ObjectMapper mapper = new ObjectMapper();
 
         int i=0;
-        while (i<updateGroup.size() ){
+        while (i<=updateGroup.size() ){
             System.out.println("updateGroup.get(\"user\"+i);" + updateGroup.get("user"+i));
             userList.add(mapper.convertValue(updateGroup.get("user"+i), com.project.messanger.user.model.User.class));
 
@@ -309,38 +310,50 @@ public class UserService {
 
         ArrayList<User> originMember = (ArrayList) userMapper.getGroupMember(groupId, id);
         if(userList.size() < originMember.size()){
+            ArrayList<User> deleteUserLiust = originMember;
+
+            int result = 0;
             for(int j=0; j < originMember.size(); j++){
-                System.out.println("orgin Member >>> " + originMember.get(j));
-                System.out.println("update Member >>> " + userList.get(j));
-//            for(int k=0; k < userList.size(); k++){
-//                if(userList.get(k) != originMember.get(j)){
-//                    System.out.println("INTER GOGO!!");
-//                }
-//            }
+                for(int k=0; k < originMember.size(); k++){
+                    if(userList.get(j).getUserId() == originMember.get(k).getUserId()){
+                        deleteUserLiust.remove(k);
+                        System.out.println("remain Group User >> " + deleteUserLiust.toString());
+                    }
+                }
             }
+            System.out.println("deleteUserList >> " + deleteUserLiust.toString());
+            int delGroupId = mapper.convertValue(updateGroup.get("groupId"), Integer.class);
+            for(User user : deleteUserLiust){
+                result = userMapper.delGroupUser(user.getUserId(), delGroupId);
+            }
+
         }else if(userList.size() > originMember.size()){
-            for(int j=0; j < userList.size(); j++){
-                System.out.println("orgin Member >>> " + originMember.get(j));
-                System.out.println("update Member >>> " + userList.get(j));
-//            for(int k=0; k < userList.size(); k++){
-//                if(userList.get(k) != originMember.get(j)){
-//                    System.out.println("INTER GOGO!!");
-//                }
-//            }
+            ArrayList<User> addUserList = new ArrayList<>();
+            int k=0;
+            int result = 0;
+             for(int j=0; j <= userList.size(); j++){
+                if(originMember.size() < j){
+                    System.out.println("you have to add member");
+                    System.out.println("update Member >>> " + userList.get(j-1));
+                    if(userList.size() < j){
+                        System.out.println("더 이상 추가 되는 인원은 없음");
+                        break;
+                    }
+                    addUserList.add(userList.get(j-1));
+                    System.out.println("addUserList check >>> " + addUserList.get(k));
+
+                    int addUserId = addUserList.get(k).getUserId();
+                    int addGroupId = mapper.convertValue(updateGroup.get("groupId"), Integer.class);
+
+                    result = userMapper.addGroupUser(addUserId, addGroupId);
+                    System.out.println("db result >> " + result);
+                    k++;
+                }
             }
+//             return result;
         }else{
             System.out.println("인원 변경 없음");
         }
     }
-
-
-//    public ArrayList getAllPromise(String id){
-//        ArrayList allPromises = userMapper.getAllPromise(id);
-//
-//        for(Object promise : allPromises){
-//            System.out.println(id + "의 약속 >> " + promise.toString());
-//        }
-//        return allPromises;
-//    }
 
 }

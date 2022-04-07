@@ -178,4 +178,12 @@
         groupId = #{gidx}
     </select>
 
+    <insert id="addGroupUser" parameterType="int">
+        INSERT INTO groups (userId, groupId) VALUES(#{addUserId}, #{addGroupId})
+    </insert>
+    <delete id="delGroupUser" parameterType="int">
+        DELETE FROM groups WHERE userId = #{userId} AND groupId = #{delGroupId}
+    </delete>
+
+
 </mapper>

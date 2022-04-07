@@ -57,4 +57,8 @@ public interface UserMapper {
 
     ArrayList<User> checkGreoupMember(String userId);
 
+    int addGroupUser(int addUserId, int addGroupId);
+
+    int delGroupUser(int userId, int delGroupId);
+
 }
