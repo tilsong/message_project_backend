@@ -229,7 +229,7 @@ public class UserService {
         System.out.println("====== newGroup start ======");
         Group newCreateGroup = new Group();
         newCreateGroup.setGroupName(newGroup.get("groupName").toString());
-        newCreateGroup.setGroupInfo(newGroup.get("groupInfo").toString());
+        newCreateGroup.setDescription(newGroup.get("groupInfo").toString());
         int userId = Integer.parseInt(newGroup.get("userId").toString());
         newCreateGroup.setUserId(userId);
 
@@ -286,9 +286,9 @@ public class UserService {
         return resultList;
     }
 
-    public void updateGroup(HashMap updateGroup) {
+    public int  updateGroup(HashMap updateGroup) {
         System.out.println("===== SERVICE updateGroup start ======");
-
+        int result = 0;
         ArrayList<User> userList = new ArrayList<>();
         ObjectMapper mapper = new ObjectMapper();
 
@@ -312,7 +312,6 @@ public class UserService {
         if(userList.size() < originMember.size()){
             ArrayList<User> deleteUserLiust = originMember;
 
-            int result = 0;
             for(int j=0; j < originMember.size(); j++){
                 for(int k=0; k < originMember.size(); k++){
                     if(userList.get(j).getUserId() == originMember.get(k).getUserId()){
@@ -326,11 +325,15 @@ public class UserService {
             for(User user : deleteUserLiust){
                 result = userMapper.delGroupUser(user.getUserId(), delGroupId);
             }
+            if(result == 1 ){
+                System.out.println("update description >> " + updateGroup.get("groupInfo"));
+                userMapper.updateGroup(updateGroup);
+            }
+            return result;
 
         }else if(userList.size() > originMember.size()){
             ArrayList<User> addUserList = new ArrayList<>();
             int k=0;
-            int result = 0;
              for(int j=0; j <= userList.size(); j++){
                 if(originMember.size() < j){
                     System.out.println("you have to add member");
@@ -350,9 +353,17 @@ public class UserService {
                     k++;
                 }
             }
-//             return result;
+            if(result == 1 ){
+                System.out.println("update description >> " + updateGroup.get("groupInfo"));
+                userMapper.updateGroup(updateGroup);
+            }
+             return result;
         }else{
             System.out.println("인원 변경 없음");
+            System.out.println("update description >> " + updateGroup.get("groupInfo"));
+            userMapper.updateGroup(updateGroup);
+            result = -1;
+            return result;
         }
     }
 

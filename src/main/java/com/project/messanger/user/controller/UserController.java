@@ -264,7 +264,7 @@ public class UserController {
     }
 
     @PostMapping("user/createGroup/updateGroup")
-    public String updateGroup(@RequestBody HashMap updateGroup){
+    public int updateGroup(@RequestBody HashMap updateGroup){
         System.out.println("====== CONTROLLER updateGroup start ======");
         for(int i=0; i< updateGroup.size(); i++){
             System.out.println("updateGroup groupId >> " + updateGroup.get("groupId"));
@@ -273,10 +273,16 @@ public class UserController {
             System.out.println("updateGroup id >> " + updateGroup.get("id"));
             System.out.println("updateGroup groupMember >> " + updateGroup.get("user"+i));
         }
+        /*
+        * 1 = 모든 프로세스 정상 실행
+        * 0 = 프로세스 장애 발생
+        * -1 = 인원에 대한 변경사항이 없을 때 진행
+        *
+        * */
+        int result = userService.updateGroup(updateGroup);
+        System.out.println("updateGroup result : " + result);
 
-        userService.updateGroup(updateGroup);
 
-
-        return "updateGroup";
+        return result;
     }
 }

@@ -60,7 +60,7 @@
 
     <resultMap id="getGroupInfoMap" type="hashmap"></resultMap>
     <select id="getGroupInfo" parameterType="Integer" resultMap="getGroupInfoMap">
-        SELECT groupId, groupName, groupInfo
+        SELECT groupId, groupName, description
         FROM groupInfo
         WHERE groupId = #{gidx}
     </select>
@@ -126,7 +126,7 @@
     </update>
 
     <insert id="newGroupInfo" parameterType="com.project.messanger.user.model.Group">
-        INSERT INTO groupInfo (groupName, groupInfo) VALUES( #{groupName}, #{groupInfo})
+        INSERT INTO groupInfo (groupName, description) VALUES( #{groupName}, #{groupInfo})
     </insert>
     <select id="getGroupId" parameterType="String" resultType="Integer">
         SELECT groupId FROM groupInfo WHERE groupName = #{group_name}
@@ -185,5 +185,7 @@
         DELETE FROM groups WHERE userId = #{userId} AND groupId = #{delGroupId}
     </delete>
 
-
+    <update id="updateGroup" parameterType="hashmap">
+        UPDATE groupInfo set description = #{groupInfo} WHERE groupId = #{groupId};
+    </update>
 </mapper>

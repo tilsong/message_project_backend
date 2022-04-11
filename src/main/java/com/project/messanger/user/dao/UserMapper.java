@@ -61,4 +61,5 @@ public interface UserMapper {
 
     int delGroupUser(int userId, int delGroupId);
 
+    void updateGroup(HashMap updateGroup);
 }
