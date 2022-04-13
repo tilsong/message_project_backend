@@ -207,12 +207,13 @@ public class UserController {
 
     @PostMapping("user/createGroup")
     public HashMap createGroup(@RequestBody HashMap newGroup) {
+//    public String createGroup(@RequestBody HashMap newGroup) {
         System.out.println("====== createGroup start =====");
         System.out.println(newGroup.get("userId").getClass());
         System.out.println(newGroup.get("groupName"));
-        System.out.println(newGroup.get("groupInfo"));
-
+        System.out.println(newGroup.get("description"));
         HashMap resultMap = userService.newGroup(newGroup);
+//        userService.newGroup(newGroup);
 
         return resultMap;
     }
@@ -269,7 +270,7 @@ public class UserController {
         for(int i=0; i< updateGroup.size(); i++){
             System.out.println("updateGroup groupId >> " + updateGroup.get("groupId"));
             System.out.println("updateGroup groupName >> " + updateGroup.get("groupName"));
-            System.out.println("updateGroup groupInfo >> " + updateGroup.get("groupInfo"));
+            System.out.println("updateGroup description >> " + updateGroup.get("description"));
             System.out.println("updateGroup id >> " + updateGroup.get("id"));
             System.out.println("updateGroup groupMember >> " + updateGroup.get("user"+i));
         }

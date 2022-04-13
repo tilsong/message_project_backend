@@ -19,6 +19,7 @@ import java.util.HashMap;
 @Service
 public class UserService {
 
+    ObjectMapper mapper = new ObjectMapper();
     @Autowired
     private UserMapper userMapper;
 
@@ -229,9 +230,21 @@ public class UserService {
         System.out.println("====== newGroup start ======");
         Group newCreateGroup = new Group();
         newCreateGroup.setGroupName(newGroup.get("groupName").toString());
-        newCreateGroup.setDescription(newGroup.get("groupInfo").toString());
+        newCreateGroup.setDescription(newGroup.get("description").toString());
         int userId = Integer.parseInt(newGroup.get("userId").toString());
         newCreateGroup.setUserId(userId);
+
+        ArrayList<User> newGroupMemberList = new ArrayList<>();
+
+        for(int i=0; i < newGroup.size(); i++){
+            System.out.println("new group member >> " + newGroup.get("user"+i));
+            if(newGroup.get("user"+i) != null){
+                newGroupMemberList.add(mapper.convertValue(newGroup.get("user"+i), User.class ));
+            }
+        }
+        User addUser = new User();
+        addUser.setUserId(newCreateGroup.getUserId());
+        newGroupMemberList.add(addUser);
 
         System.out.println("newCreateGroup >> " + newCreateGroup.toString());
 
@@ -244,11 +257,15 @@ public class UserService {
             System.out.println("group update 시작");
             newCreateGroup.setGroupId(userMapper.getGroupId(newGroup.get("groupName")));
             System.out.println("groupID >> " + newCreateGroup.getGroupId());
-            result = userMapper.newGroup(newCreateGroup);
+
+            for(User user : newGroupMemberList){
+                userMapper.newGroup(newCreateGroup);
+                newCreateGroup.setUserId(user.getUserId());
+            }
 
             resultMap.put("successResult", result);
             resultMap.put("groupId", newCreateGroup.getGroupId());
-            resultMap.put("userId", userId);
+            resultMap.put("create group userId", userId);
 
             return resultMap;
         } else {
@@ -290,7 +307,7 @@ public class UserService {
         System.out.println("===== SERVICE updateGroup start ======");
         int result = 0;
         ArrayList<User> userList = new ArrayList<>();
-        ObjectMapper mapper = new ObjectMapper();
+
 
         int i=0;
         while (i<=updateGroup.size() ){
@@ -326,7 +343,7 @@ public class UserService {
                 result = userMapper.delGroupUser(user.getUserId(), delGroupId);
             }
             if(result == 1 ){
-                System.out.println("update description >> " + updateGroup.get("groupInfo"));
+                System.out.println("update description >> " + updateGroup.get("description"));
                 userMapper.updateGroup(updateGroup);
             }
             return result;
@@ -354,13 +371,13 @@ public class UserService {
                 }
             }
             if(result == 1 ){
-                System.out.println("update description >> " + updateGroup.get("groupInfo"));
+                System.out.println("update description >> " + updateGroup.get("description"));
                 userMapper.updateGroup(updateGroup);
             }
              return result;
         }else{
             System.out.println("인원 변경 없음");
-            System.out.println("update description >> " + updateGroup.get("groupInfo"));
+            System.out.println("update description >> " + updateGroup.get("description"));
             userMapper.updateGroup(updateGroup);
             result = -1;
             return result;

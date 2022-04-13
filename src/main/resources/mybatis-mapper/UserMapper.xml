@@ -126,7 +126,7 @@
     </update>
 
     <insert id="newGroupInfo" parameterType="com.project.messanger.user.model.Group">
-        INSERT INTO groupInfo (groupName, description) VALUES( #{groupName}, #{groupInfo})
+        INSERT INTO groupInfo (groupName, description) VALUES( #{groupName}, #{description})
     </insert>
     <select id="getGroupId" parameterType="String" resultType="Integer">
         SELECT groupId FROM groupInfo WHERE groupName = #{group_name}
@@ -155,7 +155,7 @@
     </select>
 
     <select id="checkGreoupMember" parameterType="String" resultType="com.project.messanger.user.model.User">
-        SELECT user.userId, user.id, user.name
+        SELECT user.userId, user.id, user.name, groups.groupId
         FROM user
         NATURAL JOIN groups
         WHERE groups.userId = ANY
@@ -186,6 +186,6 @@
     </delete>
 
     <update id="updateGroup" parameterType="hashmap">
-        UPDATE groupInfo set description = #{groupInfo} WHERE groupId = #{groupId};
+        UPDATE groupInfo set description = #{description} WHERE groupId = #{groupId};
     </update>
 </mapper>

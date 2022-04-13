@@ -49,7 +49,7 @@ public interface UserMapper {
 
     int getGroupId(Object group_name);
 
-    int newGroup(Group newCreateGroup);
+    void newGroup(Group newCreateGroup);
 
     List getAllKnowMember(String userId);
     
