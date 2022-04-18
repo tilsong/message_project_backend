@@ -1,4 +1,5 @@
 package com.project.messanger.user.dao;
+import com.project.messanger.config.auth.PrincipalDetails;
 import com.project.messanger.user.model.Group;
 import com.project.messanger.user.model.PromiseInfo;
 import com.project.messanger.user.model.User;
@@ -62,4 +63,6 @@ public interface UserMapper {
     int delGroupUser(int userId, int delGroupId);
 
     void updateGroup(HashMap updateGroup);
+
+    public User getUserById(String id);
 }

@@ -32,8 +32,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .httpBasic().disable()
                 .addFilter(new AuthenticationFilter(authenticationManager()))
                 .authorizeRequests()
-//                .antMatchers("/messanger/v1/user/**")
-//                .access("hasRole('ROLE_USER')")
+                .antMatchers("/messanger/v1/user/**")
+                .access("hasRole('ROLE_USER')")
                 .anyRequest()
                 .permitAll();
     }
