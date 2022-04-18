@@ -37,20 +37,19 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         System.out.println("인증이나 권한이 필요한 주소 요청이 들어왔다!!!");
 
-        String jwtHeader = request.getHeader("Authorization");
-        System.out.println("jwtHeader >> " + jwtHeader);
-
+        String jwtHeader = request.getHeader(JwtProperties.HEADER_STRING);
         // header 가 있는지 확인
-        if(jwtHeader == null || !jwtHeader.startsWith("Bearer")){
+        if(jwtHeader == null || !jwtHeader.startsWith(JwtProperties.TOKEN_PREFIX)){
             chain.doFilter(request, response);
             return;
         }
-
+        System.out.println("jwtHeader >> " + jwtHeader);
         // JWT를 Header에서 받으면  검증을 해서 정상적인 사용자인지 확인\
-        String jwtToken = request.getHeader("Authorization").replace("Bearer ", "");
+        String jwtToken = request.getHeader(JwtProperties.HEADER_STRING).replace(JwtProperties.TOKEN_PREFIX, "");
+        System.out.println("AuthorizationFilter jwtToken >> " + jwtToken);
 
         String username = JWT.require(Algorithm.HMAC512(JwtProperties.SECRET)).build().verify(jwtToken).getClaim("username").asString();
-
+        System.out.println("AuthorizationFilter username >> " + username);
 //        서명이 정상적으로 됨
         if(username != null){
 

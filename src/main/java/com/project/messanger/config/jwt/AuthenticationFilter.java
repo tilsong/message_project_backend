@@ -1,5 +1,7 @@
 package com.project.messanger.config.jwt;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.messanger.config.auth.PrincipalDetails;
 import com.project.messanger.user.model.User;
@@ -15,6 +17,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Date;
 
 @RequiredArgsConstructor
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
@@ -51,5 +54,13 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
         PrincipalDetails principalDetails = (PrincipalDetails) authResult.getPrincipal();
 
+        String token = JWT.create()
+                .withSubject(principalDetails.getUsername())
+                .withExpiresAt(new Date(System.currentTimeMillis() + JwtProperties.EXPIRATION_TIME))
+                .withClaim("id", principalDetails.getUser().getUserId())
+                .withClaim("username", principalDetails.getUser().getId())
+                .sign(Algorithm.HMAC512(JwtProperties.SECRET));
+
+        response.addHeader(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX+token);
     }
 }

@@ -188,4 +188,8 @@
     <update id="updateGroup" parameterType="hashmap">
         UPDATE groupInfo set description = #{description} WHERE groupId = #{groupId};
     </update>
+
+    <select id="getUserById" parameterType="String" resultType="com.project.messanger.user.model.User">
+        SELECT * FROM user WHERE id = #{id}
+    </select>
 </mapper>

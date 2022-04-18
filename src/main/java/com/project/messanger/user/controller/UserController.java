@@ -8,6 +8,7 @@ import com.project.messanger.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
@@ -36,6 +37,7 @@ public class UserController {
 //    }
 
     @GetMapping("user/main")
+    @PreAuthorize("hasAnyRole('ROLE_USER')")
     public @ResponseBody HashMap main(@RequestBody User user){
 
         System.out.println("========== test 'user/main' start ==========");
@@ -74,32 +76,14 @@ public class UserController {
         return "user login success!";
     }
 
-    @Secured("ROLE_USER")
     @PostMapping("user/post")
+    @PreAuthorize("hasAnyRole('ROLE_USER')")
     public @ResponseBody String userMainPost(){
 
         User user = new User();
         return "POST >> user login success!";
     }
 
-    @PostMapping("login")
-    public RedirectView  login(@RequestBody User user){
-        System.out.println("login user id >> " + user.getId());
-        System.out.println("login user pwd >> " + user.getPwd());
-
-        /*
-        * 0. 가장 먼저 보여야 한다
-        * 1. 로그인 페이지 이동
-        * 2. 회원이 아니라면 join페이지로 이동
-        *
-        *  1. 로그인을 할 때, id - password 데이터 전달 받음
-         * 2. JWT 토큰 새로 생성
-         * 3. JWT 토큰으로 저장
-         * 4. 이후 main 페이지로 이동
-        * */
-//        String url = userService.login(user);
-        return new RedirectView(userService.login(user));
-    }
     @PostMapping("join")
     public User join(@RequestBody User user){
         System.out.println("===== join start =====");
@@ -126,6 +110,7 @@ public class UserController {
     }
 
     @GetMapping("user/createPromiseForm")
+    @PreAuthorize("hasAnyRole('ROLE_USER')")
 //    public HashMap createPromiseForm(@RequestParam("groupId") String groupId, @RequestParam("userID") String userID){
     public HashMap createPromiseForm(@RequestParam("groupId") String groupId){
 
@@ -143,6 +128,7 @@ public class UserController {
     }
 
     @PostMapping("user/createPromise")
+    @PreAuthorize("hasAnyRole('ROLE_USER')")
     public @ResponseBody ArrayList createPromise(@RequestBody HashMap groupInfo){
 
         System.out.println("===== user/createPromise start ======");
@@ -176,6 +162,7 @@ public class UserController {
     }
 
     @GetMapping("user/updatePormiseForm")
+    @PreAuthorize("hasAnyRole('ROLE_USER')")
     public HashMap updatePromiseForm(@RequestParam("group_id") String groupId, @RequestParam("promise_id") String promiseId ){
         System.out.println("===== updatePromise start ======");
         int group_id = Integer.parseInt(groupId);
@@ -186,6 +173,7 @@ public class UserController {
     }
 
     @PostMapping("user/updatePromise")
+    @PreAuthorize("hasAnyRole('ROLE_USER')")
     public int updatePromise(@RequestBody PromiseInfo updatePromise){
         System.out.println("====== user/updatePromise start ======");
 
@@ -193,6 +181,7 @@ public class UserController {
     }
 
     @PostMapping("user/createGroupForm")
+    @PreAuthorize("hasAnyRole('ROLE_USER')")
     public Map createGroupForm(@RequestBody User user){
         System.out.println("===== createGroupForm start ======");
         System.out.println("user id >> " + user.getId());
@@ -206,6 +195,7 @@ public class UserController {
     }
 
     @PostMapping("user/createGroup")
+    @PreAuthorize("hasAnyRole('ROLE_USER')")
     public HashMap createGroup(@RequestBody HashMap newGroup) {
 //    public String createGroup(@RequestBody HashMap newGroup) {
         System.out.println("====== createGroup start =====");
@@ -219,6 +209,7 @@ public class UserController {
     }
 
     @PostMapping("user/createGroup/searchMemberForm")
+    @PreAuthorize("hasAnyRole('ROLE_USER')")
     public ArrayList searchMemberForm(@RequestParam("userId") String userId){
         System.out.println("====== searchMemberForm start =====");
 
@@ -238,6 +229,7 @@ public class UserController {
     * 검색으로 헤결 해보려 했지만 해결이 되지 않는다.
     * */
     @PostMapping("user/createGroup/searchMember")
+    @PreAuthorize("hasAnyRole('ROLE_USER')")
     public String searchMember(@RequestBody ArrayList<String>  name){
         System.out.println("======= searchMember start =======");
 
@@ -247,6 +239,7 @@ public class UserController {
     }
 
     @PostMapping("user/createGroup/updateGroupForm")
+    @PreAuthorize("hasAnyRole('ROLE_USER')")
     public HashMap updateGroupForm(@RequestParam("groupId") String groupId,@RequestParam("id") String id){
         System.out.println("===== updateGroupForm start =====");
         System.out.println("groupId > " + groupId);
@@ -265,6 +258,7 @@ public class UserController {
     }
 
     @PostMapping("user/createGroup/updateGroup")
+    @PreAuthorize("hasAnyRole('ROLE_USER')")
     public int updateGroup(@RequestBody HashMap updateGroup){
         System.out.println("====== CONTROLLER updateGroup start ======");
         for(int i=0; i< updateGroup.size(); i++){
